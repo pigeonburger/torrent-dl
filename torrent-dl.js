@@ -53,7 +53,6 @@ const argv = yargs
 .argv;
 
 var input = argv.input
-console.log(input)
 var port = argv.port;
 var maxpeers = argv.connections;
 var upslots = argv.uploadslots;
