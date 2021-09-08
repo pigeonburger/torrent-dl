@@ -16,6 +16,7 @@
     "url": "https://github.com/pigeonburger/torrent-dl/issues"
   },
   "homepage": "https://github.com/pigeonburger/torrent-dl#readme",
+  "bin": "./torrent-dl.js",
   "dependencies": {
     "clivas": "^0.2.0",
     "colors": "^1.4.0",
