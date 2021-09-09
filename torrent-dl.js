@@ -163,7 +163,7 @@ async function torrenter(input) {
             _speed = bytes(engine.swarm.downloadSpeed()) + "/s";
             speed = "{green:" + _speed + "}";
             let swarmlength = engine.swarm.wires.length;
-            if (swarmlength === 1) {
+            if (swarmlength === 1){
                 peers = engine.swarm.wires.length + " peer";
             } else {
                 peers = engine.swarm.wires.length + " peers";
@@ -227,7 +227,7 @@ async function init() {
             let current_length = engine.files.length;
             total_files = total_files + current_length;
             total_size = total_size + totalLengthBytes;
-            if (current_length === 1) {
+            if (current_length === 1){
                 console.log("Downloaded " + engine.files.length + " file (" + bytes(totalLengthBytes) + ")\n");
             } else {
                 console.log("Downloaded " + engine.files.length + " files (" + bytes(totalLengthBytes) + ")\n");
@@ -237,17 +237,17 @@ async function init() {
     }
 
     // Make shore you're grammer is korrect";
-    if (total_files === 1) {
+    if (total_files === 1){
         var s1 = 'file';
     } else {
         var s1 = 'files';
     }
-    if (inputs.length === 1) {
+    if (inputs.length === 1){
         var s2 = 'torrent';
     } else {
         var s2 = 'torrents';
     }
-    if (errors === 0) {
+    if (errors === 0){
         var s3 = colors.green('no failed');
     } else {
         var s3 = colors.red(`${errors} failed`);
