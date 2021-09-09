@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var yargs = require('yargs');
-var clivas = require("clivas");
 var numeral = require("numeral");
 var progress = require("progress");
 var colors = require("colors");
@@ -170,8 +169,7 @@ async function torrenter(input) {
             }
 
             if (verified >= engine.torrent.pieces.length) {
-                clivas.clear();
-                clivas.line("Downloading last few pieces " + speed + " " + peers);
+                console.log("Downloading last few pieces " + speed + " " + peers);
             } else {
                 if (argv.verbose) {
                     console.clear();
