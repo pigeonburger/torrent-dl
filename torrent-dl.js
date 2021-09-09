@@ -47,7 +47,7 @@ const argv = yargs
         default: false,
     })
     .help()
-    .version("Torrent-DL Version 1.1.0")
+    .version("Torrent-DL Version 1.1.1")
     .alias('help', 'h')
     .argv;
 
