@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var yargs = require('yargs');
-var numeral = require("numeral");
 var progress = require("progress");
 var colors = require("colors");
 var parsetorrent = require("parse-torrent");
