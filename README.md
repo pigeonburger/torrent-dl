@@ -138,8 +138,6 @@ You can increase the maximum number of peers you can connect to with the `-c` op
 
 ## Acknowledgements
 
-This project was adapted from [tget](https://github.com/jeffjose/tget) to add more functions and configurability. 
-
 Without the [torrent-stream](https://github.com/mafintosh/torrent-stream) library, this project would be nowhere near as straightforward as it is.
 
 ---
