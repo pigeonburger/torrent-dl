@@ -12,7 +12,7 @@ const argv = yargs
 .usage("Torrent-DL\nCommand-Line Torrent Downloader\n\nUsage: torrent-dl -i [MAGNET LINK OR TORRENT FILE] [OPTIONS]")
 .option('input', {
     alias: 'i',
-    description: 'Magnet link, torrent file or link to torrent file.',
+    description: 'Magnet link, infohash, torrent file or link to torrent file.',
     type: 'string',
     require: true,
 })
