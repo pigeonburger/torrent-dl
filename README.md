@@ -1,7 +1,7 @@
 # Torrent-DL
-*Download Torrents via the Command-Line*
+*Download Torrents via the Command-Line.*
 
-This is a simple but efficient command-line Bittorrent client, which aims to be "Youtube-DL for Torrents".
+This is a simple but efficient command-line Bittorrent client, which aims to be "Youtube-DL for Torrents" (except it can download any file from a torrent, of course).
 
 ------
 
@@ -56,6 +56,28 @@ More options available for use are below.
 
 ### `-i, --input`
 Magnet link, infohash, torrent file or link to torrent file [REQUIRED]
+
+This option can be used more than once to specify multiple references to torrents (they do not all need to be of the same type), e.g. `-i torrent1.torrent -i magnetlink -i https://example.com/anothertorrent.torrent`
+
+Alternatively, you can also reference a `.txt` file containing a torrent reference on each line. Take this file, `torrents.txt` for example:
+
+```
+magnet:?xt=urn:btih:873dd05bd69f2626e4123887e7bb7922aaeb4efa&dn=873dd05bd69f2626e4123887e7bb7922aaeb4efa
+https://releases.ubuntu.com/20.04/ubuntu-20.04.3-desktop-amd64.iso.torrent
+magnet:?xt=urn:btih:0aae223b7c0244e4952158554cd0506f0eca1fdf&dn=archlinux-2021.09.01-x86_64.iso
+```
+
+This file has the magnet link to a Linux Mint ISO on one line, Ubuntu on another line, and Arch Linux on the last line.
+
+You can pass `torrents.txt` to `torrent-dl` like so:
+
+```
+torrent-dl -i torrents.txt
+```
+
+This will download all 3 torrents in the `txt` file, one after another.
+
+The file you specify **must** have a `.txt` extension.
 
 ### `-p, --port`
 Port to listen for incoming peers [Default is 6881]
@@ -133,6 +155,7 @@ You can increase the maximum number of peers you can connect to with the `-c` op
 - Configuration file support.
 - Add automatic search and download functionality for popular torrent sites.
 - Make `--verbose` output look less stupid.
+- Asynchronous multiple downloads(?)
 
 ---
 
