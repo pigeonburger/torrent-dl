@@ -75,9 +75,7 @@ if (indata.constructor === String && indata.toLowerCase().endsWith('.txt')) {
 var engine = null;
 var timerId = null;
 
-var bytes = function(num) {
-    return numeral(num).format("0.0b");
-};
+function bytes(a,b=1,k=1024){with(Math){let d=floor(log(a)/log(k));return 0==a?"0 Bytes":parseFloat((a/pow(k,d)).toFixed(max(0,b)))+" "+["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"][d]}}
 
 async function torrenter(input) {
     return new Promise((resolve, reject) => {
