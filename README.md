@@ -159,6 +159,14 @@ You can increase the maximum number of peers you can connect to with the `-c` op
 
 ---
 
+## Other Notices/Warnings
+
+### Legal Notice
+
+While torrents themselves are legal, please note that downloading copyright-protected material from torrents is illegal and may result in serious penalties. It is **<u>your responsibility</u>** to ensure the material you download is legal.
+
+---
+
 ## Acknowledgements
 
 Without the [torrent-stream](https://github.com/mafintosh/torrent-stream) library, this project would be nowhere near as straightforward as it is.
