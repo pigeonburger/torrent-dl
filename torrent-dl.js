@@ -11,6 +11,8 @@ var parsetorrent = require("parse-torrent");
 var torrentStream = require("torrent-stream");
 var request = require("request");
 
+var search_sites = {'tpb': "The Pirate Bay", 'ia': "Internet Archive"};
+
 const argv = yargs
     .usage("Torrent-DL\nCommand-Line Torrent Downloader\n\nUsage: torrent-dl -i [MAGNET LINK OR TORRENT FILE] [OPTIONS]")
     .option('input', {
@@ -57,7 +59,7 @@ const argv = yargs
         default: false,
     })
     .help()
-    .version("Torrent-DL Version 1.1.1")
+    .version("Torrent-DL Version 1.3.0")
     .alias('help', 'h')
     .argv;
 
@@ -98,6 +100,7 @@ async function torrenter(input) {
         var prevLength = null;
         var verified = 0;
         var downloadedPercentage = 0;
+        var notice2 = null;
 
         var setupEngine = function(torrent) {
             engine = torrentStream(torrent, {
@@ -126,6 +129,9 @@ async function torrenter(input) {
 
             engine.on("ready", function() {
                 clearTimeout(notice);
+                notice2 = setTimeout(() => {
+                    console.log(colors.italic("\nThis is taking a while :( The torrent may not have enough peers to start a download. You can exit by pressing Ctrl-C or wait a little longer for peers to connect."));
+                }, 10000);
                 console.log("\n------------------");
                 console.log(colors.bold.magenta("Found " + Object.keys(engine.files).length + " files:"));
                 engine.files.forEach(function(file) {
@@ -219,6 +225,9 @@ async function torrenter(input) {
                     console.table(peertable);
                     console.log('\n');
                 }
+                if (engine.swarm.wires.length !== 0) {
+                    clearTimeout(notice2);
+                } 
                 bar.tick(verified - prevLength, {
                     speed: _speed.green,
                     peers: peers,
@@ -238,7 +247,7 @@ async function init() {
             var sitecontent = await searcher(argv.search, input);
             var totallength = sitecontent.length;
             if (sitecontent.length === 0) {
-                console.log(colors.red(`No torrents found for ${input} on ${argv.search}`));
+                console.log(colors.red(`No torrents found for ${input} on ${search_sites[argv.search.toLowerCase()]}`));
                 continue;
             }
             let download = false;
@@ -249,7 +258,7 @@ async function init() {
 
                 let name = current['name'];
                 let date = current['date'];
-                let hash = current['hash'];
+                let source = current['source'];
                 let size = current['size'];
                 let files = current['files'];
                 let url = current['url'];
@@ -267,7 +276,7 @@ async function init() {
                 console.log(colors.green(`Found ${totallength} ${tn}.\n`) + colors.magenta(`Torrent ${index + 1}:\n\n`) + `${'Name:'.yellow} ${name}
 ${'Date Added:'.yellow} ${date}
 ${'Size:'.yellow} ${size} (${files})
-${'Infohash:'.yellow} ${hash}
+${'Source:'.yellow} ${source}
 ${'Seeders:'.yellow} ${seeders}
 ${'Leechers:'.yellow} ${leechers}
 ${'URL:'.yellow} ${url}
@@ -312,7 +321,7 @@ ${'URL:'.yellow} ${url}
                     }
                 }
             }
-            input = current['hash']
+            input = current['source']
         }
 
         await torrenter(input);
@@ -356,6 +365,7 @@ async function searcher(site, query) {
     return new Promise((resolve, reject) => {
         // TPB
         if (site.toLowerCase() === 'tpb') {
+            console.log(`Searching ${search_sites[site.toLowerCase()]} for "${query}"......`);
             request(`https://apibay.org/q.php?q=${query}&cat=0`, function(error, response, html) {
                 if (!error && response.statusCode == 200) {
                     let json = JSON.parse(html);
@@ -367,7 +377,7 @@ async function searcher(site, query) {
                                 hour12: false
                             });
                             itemdata['name'] = item['name'];
-                            itemdata['hash'] = item['info_hash'];
+                            itemdata['source'] = item['info_hash'];
                             itemdata['seeders'] = item['seeders'];
                             itemdata['leechers'] = item['leechers'];
                             itemdata['size'] = bytes(item['size']);
@@ -379,8 +389,32 @@ async function searcher(site, query) {
                     resolve(data);
                 }
             });
+        } else if (site.toLowerCase() === 'ia') {
+            console.log(`Searching ${search_sites[site.toLowerCase()]} for "${query}"......`);
+            request(`https://archive.org/advancedsearch.php?q=${query}+AND+format%3A%22BitTorrent%22&fl[]=identifier&fl[]=item_size&fl[]=publicdate&fl[]=title&rows=200&page=1&output=json#json`, function(error, response, html) {
+                if (!error && response.statusCode == 200) {
+                    let json = JSON.parse(html);
+                    let data = [];
+                    if (json['response']['numFound'] !== 0) {
+                        for (let item of json['response']['docs']) {
+                            let itemdata = {};
+                            let id = item['identifier'];
+                            itemdata['date'] = item['publicdate'];
+                            itemdata['name'] = item['title'];
+                            itemdata['source'] = `https://archive.org/download/${id}/${id}_archive.torrent`;
+                            itemdata['seeders'] = "N/A";
+                            itemdata['leechers'] = "N/A";
+                            itemdata['size'] = bytes(item['item_size']);
+                            itemdata['files'] = "N/A";
+                            itemdata['url'] = `https://archive.org/details/${id}`;
+                            data.push(itemdata);
+                        }
+                    }
+                    resolve(data);
+                }
+            })
         } else {
-            console.log("Invalid torrent site specified. Available options are: tpb");
+            console.log(`Invalid torrent site specified. Available options are: tpb (${search_sites['tpb']}), ia (${search_sites['ia']})`);
             process.exit(1);
         }
     })
