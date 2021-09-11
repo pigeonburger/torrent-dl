@@ -190,7 +190,7 @@ You can increase the maximum number of peers you can connect to with the `-c` op
 - ~~Add support for passing a `.txt` file containing a list of multiple torrents.~~ Done.
 - Proxy support.
 - Configuration file support.
-- Add automatic search and download functionality for popular torrent sites.
+- ~~Add automatic search and download functionality for popular torrent sites.~~ Done.
 - Make `--verbose` output look less stupid.
 - Asynchronous multiple downloads(?)
 
