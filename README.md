@@ -3,6 +3,18 @@
 
 This is a simple but efficient command-line Bittorrent client, which aims to be "Youtube-DL for Torrents" (except it can download any file from a torrent, of course).
 
+### Contents:
+
+- [Description](#description)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Options](#options)
+- [Troubleshooting](#troubleshooting)
+- [To-Do List](#to-do-list)
+- [Other Notices](#other-notices)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
 ------
 
 ## Description
@@ -11,7 +23,34 @@ Torrent-DL is an efficient command-line program allowing you to quickly download
 
 It is built using [`node.js`](https://github.com/nodejs/node), but does not require it to be installed on your computer if you download it from the [releases](https://github.com/pigeonburger/torrent-dl/releases/latest/) page.
 
-The `torrent-dl` binaries are all approximately 30MB in size, as they come pre-bundled with a small `node.js` runtime so they can run on any computer.
+The `torrent-dl` binaries are all approximately 35MB in size, as they come pre-bundled with a small `node.js` runtime so they can run on any computer.
+
+---
+
+## Installation
+
+Windows users can download the latest `torrent-dl` release from [here](https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-windows-x64) and place it anywhere in their system [PATH](https://en.wikipedia.org/wiki/PATH_%28variable%29) except for `%SYSTEMROOT%\System32` (e.g. do not put in `C:\Windows\System32`).
+
+To install right away for Linux users:
+
+```
+sudo curl -L https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-linux-x64 -o /usr/local/bin/torrent-dl
+sudo chmod a+rx /usr/local/bin/torrent-dl
+```
+
+To install right away for MacOS users:
+
+```
+sudo curl -L https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-macos-x64 -o /usr/local/bin/torrent-dl
+sudo chmod a+rx /usr/local/bin/torrent-dl
+```
+
+If you *do* have `node.js` and `npm` installed on your device, then feel free to install it with:
+
+```
+npm install -g torrent-dl
+```
+(requires `node.js` v12 or higher)
 
 ---
 
@@ -88,6 +127,27 @@ Maximum number of peers to connect to [Default is 100]
 ### `-u, --uploadslots`
 Number of upload slots [Default is 10]
 
+### `-s, --search`
+Download a torrent from a popular torrent site with a search query.
+
+Use this option to specify a supported torrent site (see supported sites below), and then `-i` will be interpeted as the search query.
+
+Available sites:
+
+- `tpb` - The Pirate Bay
+
+**While there are legimate, legal torrents on these sites, you should always take caution and ensure you are *legally* downloading the material (see this notice [here](#other-notices) also). Legal penalties may apply.**
+
+Example usage:
+
+```
+torrent-dl --search tpb -i "ubuntu desktop"
+```
+
+You will then be presented with the first search result, and can navigate through all other results that come up, review their details and then download from one of them.
+
+You can also specify multiple search terms by using `-i` more than once, or creating a `.txt` file and specifying a search term on each new line. (Please note that this will require you to manually select a search result for each one)
+
 ### `-t, --tracker`
 Manually add a custom tracker URL (can be used more than once if adding multiple trackers)
 
@@ -99,34 +159,6 @@ Show the help menu.
 
 ### `--version`
 Print the `torrent-dl` version number.
-
-
----
-
-## Installation
-
-Windows users can download the latest `torrent-dl` release from [here](https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-windows-x64) and place it anywhere in their system [PATH](https://en.wikipedia.org/wiki/PATH_%28variable%29) except for `%SYSTEMROOT%\System32` (e.g. do not put in `C:\Windows\System32`).
-
-To install right away for Linux users:
-
-```
-sudo curl -L https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-linux-x64 -o /usr/local/bin/torrent-dl
-sudo chmod a+rx /usr/local/bin/torrent-dl
-```
-
-To install right away for MacOS users:
-
-```
-sudo curl -L https://github.com/pigeonburger/torrent-dl/releases/latest/download/torrent-dl-macos-x64 -o /usr/local/bin/torrent-dl
-sudo chmod a+rx /usr/local/bin/torrent-dl
-```
-
-If you *do* have `node.js` and `npm` installed on your device, then feel free to install it with:
-
-```
-npm install -g torrent-dl
-```
-(requires `node.js` v12 or higher)
 
 ---
 
@@ -159,7 +191,7 @@ You can increase the maximum number of peers you can connect to with the `-c` op
 
 ---
 
-## Other Notices/Warnings
+## Other Notices
 
 ### Legal Notice
 
