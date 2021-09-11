@@ -11,7 +11,7 @@ var parsetorrent = require("parse-torrent");
 var torrentStream = require("torrent-stream");
 var request = require("request");
 
-var search_sites = {'tpb': "The Pirate Bay", 'ia': "Internet Archive"};
+var search_sites = {'tpb': "The Pirate Bay", 'ia': "Internet Archive", 'st': 'SolidTorrents'};
 
 const argv = yargs
     .usage("Torrent-DL\nCommand-Line Torrent Downloader\n\nUsage: torrent-dl -i [MAGNET LINK OR TORRENT FILE] [OPTIONS]")
@@ -413,8 +413,30 @@ async function searcher(site, query) {
                     resolve(data);
                 }
             })
+        } else if (site.toLowerCase() === 'st'){
+            request(`https://solidtorrents.net/api/v1/search?q=${query}&category=all&sort=seeders`, function(error, response, html) {
+                if (!error && response.statusCode == 200) {
+                    let json = JSON.parse(html);
+                    let data = [];
+                    if (json['hits']['value'] !== 0) {
+                        for (let item of json['results']) {
+                            let itemdata = {};
+                            itemdata['date'] = item['imported'];
+                            itemdata['name'] = item['title'];
+                            itemdata['source'] = item['infohash'];
+                            itemdata['seeders'] = item['swarm']['seeders'];
+                            itemdata['leechers'] = item['swarm']['leechers'];
+                            itemdata['size'] = bytes(item['size']);
+                            itemdata['files'] = "N/A";
+                            itemdata['url'] = `https://itorrents.org/torrent/${item['infohash']}.torrent`;
+                            data.push(itemdata);
+                        }
+                    }
+                    resolve(data);
+                }
+            });
         } else {
-            console.log(`Invalid torrent site specified. Available options are: tpb (${search_sites['tpb']}), ia (${search_sites['ia']})`);
+            console.log(`Invalid torrent site specified. Available options are: tpb (${search_sites['tpb']}), ia (${search_sites['ia']}), st (${search_sites['st']})`);
             process.exit(1);
         }
     })

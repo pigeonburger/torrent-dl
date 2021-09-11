@@ -1,6 +1,6 @@
 {
     "name": "torrent-dl",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "Download Torrents via the Command-Line.",
     "main": "torrent-dl.js",
     "scripts": {

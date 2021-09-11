@@ -135,7 +135,8 @@ Use this option to specify a supported torrent site (see supported sites below),
 Available sites:
 
 - `tpb` - The Pirate Bay
-- `ia` - Internet Archive
+- `ia` - [Internet Archive](https://archive.org)
+- `st` - Solidtorrents.net (torrent search engine for multiple sites)
 
 **While there are legimate, legal torrents on these sites, you should always take caution and ensure it can actually *legally be downloaded* in this way (see this notice [here](#other-notices) also). Legal penalties may apply.**
 
