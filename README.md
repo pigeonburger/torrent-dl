@@ -136,7 +136,7 @@ Available sites:
 
 - `tpb` - The Pirate Bay
 
-**While there are legimate, legal torrents on these sites, you should always take caution and ensure you are *legally* downloading the material (see this notice [here](#other-notices) also). Legal penalties may apply.**
+**While there are legimate, legal torrents on these sites, you should always take caution and ensure it can actually *legally be downloaded* in this way (see this notice [here](#other-notices) also). Legal penalties may apply.**
 
 Example usage:
 
