@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
+var prompt = require("prompt-sync")({
+    sigint: true
+});
 var yargs = require('yargs');
 var progress = require("progress");
 var colors = require("colors");
 var parsetorrent = require("parse-torrent");
 var torrentStream = require("torrent-stream");
+var request = require("request");
 
 const argv = yargs
     .usage("Torrent-DL\nCommand-Line Torrent Downloader\n\nUsage: torrent-dl -i [MAGNET LINK OR TORRENT FILE] [OPTIONS]")
@@ -33,6 +37,12 @@ const argv = yargs
         description: 'Number of upload slots.',
         type: 'number',
         default: 10,
+    })
+    .option('search', {
+        alias: 's',
+        description: 'Makes the -i option a search query for an available torrent site specified [Available sites are: tpb]',
+        type: 'string',
+        default: null,
     })
     .option('tracker', {
         alias: 't',
@@ -74,7 +84,12 @@ if (indata.constructor === String && indata.toLowerCase().endsWith('.txt')) {
 var engine = null;
 var timerId = null;
 
-function bytes(a,b=1,k=1024){with(Math){let d=floor(log(a)/log(k));return 0==a?"0 Bytes":parseFloat((a/pow(k,d)).toFixed(max(0,b)))+" "+["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"][d]}}
+function bytes(a, b = 1, k = 1024) {
+    with(Math) {
+        let d = floor(log(a) / log(k));
+        return 0 == a ? "0 Bytes" : parseFloat((a / pow(k, d)).toFixed(max(0, b))) + " " + ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
+    }
+}
 
 async function torrenter(input) {
     return new Promise((resolve, reject) => {
@@ -92,6 +107,9 @@ async function torrenter(input) {
                 trackers: trackers
             });
             console.log("Fetching files.....");
+            var notice = setTimeout(() => {
+                console.log(colors.italic("Fetching the torrent metadata is taking longer than expected. The torrent may not have enough peers to start a download. You can exit by pressing Ctrl-C or wait a little longer for peers to connect."));
+            }, 10000);
             if (argv.verbose) {
                 console.log("Downloading from torrent: " + input)
                 console.log("Listening on port " + port)
@@ -107,6 +125,7 @@ async function torrenter(input) {
             });
 
             engine.on("ready", function() {
+                clearTimeout(notice);
                 console.log("\n------------------");
                 console.log(colors.bold.magenta("Found " + Object.keys(engine.files).length + " files:"));
                 engine.files.forEach(function(file) {
@@ -159,7 +178,7 @@ async function torrenter(input) {
             _speed = bytes(engine.swarm.downloadSpeed()) + "/s";
             speed = "{green:" + _speed + "}";
             let swarmlength = engine.swarm.wires.length;
-            if (swarmlength === 1){
+            if (swarmlength === 1) {
                 peers = engine.swarm.wires.length + " peer";
             } else {
                 peers = engine.swarm.wires.length + " peers";
@@ -215,6 +234,87 @@ async function init() {
     var total_files = 0;
     var total_size = 0;
     for (let input of inputs) {
+        if (argv.search) {
+            var sitecontent = await searcher(argv.search, input);
+            var totallength = sitecontent.length;
+            if (sitecontent.length === 0) {
+                console.log(colors.red(`No torrents found for ${input} on ${argv.search}`));
+                continue;
+            }
+            let download = false;
+            let index = 0;
+
+            while (!download) {
+                var current = sitecontent[index];
+
+                let name = current['name'];
+                let date = current['date'];
+                let hash = current['hash'];
+                let size = current['size'];
+                let files = current['files'];
+                let url = current['url'];
+                let seeders = current['seeders'];
+                let leechers = current['leechers'];
+
+                var tn = (totallength === 1) ? 'torrent' : 'torrents';
+
+                if (files === '0') {
+                    files = "Could not fetch number of files"
+                } else {
+                    files = (files === 1) ? `${files} file` : `${files} files`
+                }
+
+                console.log(colors.green(`Found ${totallength} ${tn}.\n`) + colors.magenta(`Torrent ${index + 1}:\n\n`) + `${'Name:'.yellow} ${name}
+${'Date Added:'.yellow} ${date}
+${'Size:'.yellow} ${size} (${files})
+${'Infohash:'.yellow} ${hash}
+${'Seeders:'.yellow} ${seeders}
+${'Leechers:'.yellow} ${leechers}
+${'URL:'.yellow} ${url}
+        `)
+
+                if (index === 0) {
+                    var answer = prompt(`${'Do you want to download this torrent?'.cyan} (${'Y'.yellow} = Yes, ${'Enter'.yellow} = Show next option, ${'Any other key'.yellow} = Exit): `).toLowerCase()
+                    if (answer === 'y') {
+                        download = true;
+                    } else if (answer === '') {
+                        console.clear();
+                        index++;
+                        continue;
+                    } else {
+                        process.exit(1);
+                    }
+                } else if (index + 1 !== sitecontent.length) {
+                    var answer = prompt(`${'Do you want to download this torrent?'.cyan} (${'Y'.yellow} = Yes, ${'Enter'.yellow} = Show next option, ${'B'.yellow} = Show previous option, ${'Any other key'.yellow} = Exit): `).toLowerCase()
+                    if (answer === 'y') {
+                        download = true;
+                    } else if (answer === '') {
+                        console.clear();
+                        index++;
+                        continue;
+                    } else if (answer === 'b') {
+                        console.clear();
+                        index--;
+                        continue;
+                    } else {
+                        process.exit(1);
+                    }
+                } else {
+                    var answer = prompt(`${'Do you want to download this torrent?'.cyan} (${'Y'.yellow} = Yes, ${'B'.yellow} = Show previous option, ${'Any other key'.yellow} = Exit): `).toLowerCase()
+                    if (answer === 'y') {
+                        download = true;
+                    } else if (answer === 'b') {
+                        console.clear();
+                        index--;
+                        continue;
+                    } else {
+                        process.exit(1);
+                    }
+                }
+            }
+            input = current['hash']
+        }
+
         await torrenter(input);
         if (engine) {
             engine.destroy();
@@ -222,7 +322,7 @@ async function init() {
             let current_length = engine.files.length;
             total_files = total_files + current_length;
             total_size = total_size + totalLengthBytes;
-            if (current_length === 1){
+            if (current_length === 1) {
                 console.log("Downloaded " + engine.files.length + " file (" + bytes(totalLengthBytes) + ")\n");
             } else {
                 console.log("Downloaded " + engine.files.length + " files (" + bytes(totalLengthBytes) + ")\n");
@@ -232,17 +332,17 @@ async function init() {
     }
 
     // Make shore you're grammer is korrect";
-    if (total_files === 1){
+    if (total_files === 1) {
         var s1 = 'file';
     } else {
         var s1 = 'files';
     }
-    if (inputs.length === 1){
+    if (inputs.length === 1) {
         var s2 = 'torrent';
     } else {
         var s2 = 'torrents';
     }
-    if (errors === 0){
+    if (errors === 0) {
         var s3 = colors.green('no failed');
     } else {
         var s3 = colors.red(`${errors} failed`);
@@ -251,4 +351,39 @@ async function init() {
     console.log(`Finished downloading ${total_files} ${s1} from ${inputs.length} ${s2} (Total size: ${bytes(total_size)}) (${s3})`);
     process.exit(1);
 }
+
+async function searcher(site, query) {
+    return new Promise((resolve, reject) => {
+        // TPB
+        if (site.toLowerCase() === 'tpb') {
+            request(`https://apibay.org/q.php?q=${query}&cat=0`, function(error, response, html) {
+                if (!error && response.statusCode == 200) {
+                    let json = JSON.parse(html);
+                    let data = [];
+                    if (json[0]['name'] !== 'No results returned') {
+                        for (let item of json) {
+                            let itemdata = {};
+                            itemdata['date'] = new Date(parseInt(item['added'], 10) * 1000).toLocaleString('en-AU', {
+                                hour12: false
+                            });
+                            itemdata['name'] = item['name'];
+                            itemdata['hash'] = item['info_hash'];
+                            itemdata['seeders'] = item['seeders'];
+                            itemdata['leechers'] = item['leechers'];
+                            itemdata['size'] = bytes(item['size']);
+                            itemdata['files'] = item['num_files'];
+                            itemdata['url'] = "https://thepiratebay.org/description.php?id=" + item['id'];
+                            data.push(itemdata);
+                        }
+                    }
+                    resolve(data);
+                }
+            });
+        } else {
+            console.log("Invalid torrent site specified. Available options are: tpb");
+            process.exit(1);
+        }
+    })
+}
+
 init();
