@@ -42,7 +42,7 @@ const argv = yargs
     })
     .option('search', {
         alias: 's',
-        description: 'Makes the -i option a search query for an available torrent site specified [Available sites are: tpb]',
+        description: `Makes the -i option a search query for an available torrent site specified [Available sites are: tpb (${search_sites['tpb']}), ia (${search_sites['ia']}), st (${search_sites['st']})]`,
         type: 'string',
         default: null,
     })
@@ -59,7 +59,7 @@ const argv = yargs
         default: false,
     })
     .help()
-    .version("Torrent-DL Version 1.4.0")
+    .version("Torrent-DL Version 1.4.1")
     .alias('help', 'h')
     .argv;
 
