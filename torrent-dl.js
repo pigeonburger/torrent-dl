@@ -59,7 +59,7 @@ const argv = yargs
         default: false,
     })
     .help()
-    .version("Torrent-DL Version 1.4.1")
+    .version("Torrent-DL Version 1.4.2")
     .alias('help', 'h')
     .argv;
 
@@ -282,7 +282,14 @@ ${'Leechers:'.yellow} ${leechers}
 ${'URL:'.yellow} ${url}
         `)
 
-                if (index === 0) {
+                if (index === 0 && sitecontent.length === 1){
+                    var answer = prompt(`${'Do you want to download this torrent?'.cyan} (${'Y'.yellow} = Yes, ${'Any other key'.yellow} = Exit): `).toLowerCase()
+                    if (answer === 'y') {
+                        download = true;
+                    } else {
+                        process.exit(1);
+                    }
+                } else if (index === 0) {
                     var answer = prompt(`${'Do you want to download this torrent?'.cyan} (${'Y'.yellow} = Yes, ${'Enter'.yellow} = Show next option, ${'Any other key'.yellow} = Exit): `).toLowerCase()
                     if (answer === 'y') {
                         download = true;
