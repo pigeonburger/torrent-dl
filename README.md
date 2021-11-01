@@ -1,7 +1,7 @@
 # Torrent-DL
 *Download Torrents via the Command-Line.*
 
-[![Downloads](https://img.shields.io/npm/dw/torrent-dl?style=flat)](https://www.npmjs.com/package/torrent-dl)
+[![Downloads](https://img.shields.io/npm/dt/torrent-dl)](https://www.npmjs.com/package/torrent-dl)
 [![npm](https://img.shields.io/npm/v/torrent-dl)](https://www.npmjs.com/package/torrent-dl)
 
 This is a simple but efficient command-line Bittorrent client, which aims to be "Youtube-DL for Torrents" (except it can download any file from a torrent, of course).
